@@ -1,5 +1,6 @@
 import logging
 import re
+from typing import NoReturn, Optional
 from urllib.parse import urljoin
 
 import requests_cache
@@ -12,7 +13,11 @@ from outputs import control_output
 from utils import find_tag, get_response
 
 
-def whats_new(session):
+def whats_new(session) -> Optional[list[tuple]]:
+    """
+    Собирает ссылки на статьи о нововведениях в Python, переходит по ним
+     и забирать информацию об авторах и редакторах статей.
+    """
     whats_new_url = urljoin(MAIN_DOC_URL, 'whatsnew/')
     response = get_response(session, whats_new_url)
     if response is None:
@@ -43,7 +48,9 @@ def whats_new(session):
     return result
 
 
-def latest_versions(session):
+def latest_versions(session) -> Optional[list[tuple]]:
+    """Собирает информацию о статусах версий Python."""
+    print(type(session))
     response = get_response(session, MAIN_DOC_URL)
     if response is None:
         return
@@ -56,7 +63,7 @@ def latest_versions(session):
             break
         else:
             raise Exception('Ничего не нашлось')
-    result = [('Ссылка на статью', 'Заголовок', 'Редактор, автор')]
+    result = [('Ссылка на документацию', 'Версия', 'Статус')]
     for a_tag in a_tags:
         link = a_tag['href']
         pattern = r'Python (?P<version>\d\.\d+) \((?P<status>.*)\)'
@@ -70,7 +77,8 @@ def latest_versions(session):
     return result
 
 
-def download(session):
+def download(session) -> Optional[NoReturn]:
+    """Скачивает архив с актуальной документацией."""
     downloads_url = urljoin(MAIN_DOC_URL, 'download.html')
     response = get_response(session, downloads_url)
     if response is None:
@@ -93,7 +101,8 @@ def download(session):
     logging.info(f'Архив был загружен и сохранён: {archive_path}')
 
 
-def pep(session):
+def pep(session) -> Optional[list[tuple]]:
+    """Парсит документы PEP."""
     response = get_response(session, PEP_URL)
     if response is None:
         return
@@ -117,8 +126,12 @@ def pep(session):
         response = get_response(session, full_pep_url)
         if response is None:
             return
-        soup = BeautifulSoup(response.text, features='lxml')
-        pep_content = find_tag(soup, 'section', attrs={'id': 'pep-content'})
+        pep_card = BeautifulSoup(response.text, features='lxml')
+        pep_content = find_tag(
+            pep_card,
+            'section',
+            attrs={'id': 'pep-content'}
+        )
         dt_status = pep_content.find(string='Status').parent
         actual_status = dt_status.find_next_sibling('dd').string
         if actual_status not in preview_status:
@@ -148,7 +161,8 @@ MODE_TO_FUNCTION = {
 }
 
 
-def main():
+def main() -> NoReturn:
+    """Главная функция - точка входа."""
     configure_logging()
     logging.info('Парсер запущен!')
     arg_parser = configure_argument_parser(MODE_TO_FUNCTION.keys())

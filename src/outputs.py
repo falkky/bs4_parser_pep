@@ -8,6 +8,7 @@ from constants import BASE_DIR, DATETIME_FORMAT
 
 
 def file_output(results, cli_args):
+    """Вывод данных в файл."""
     results_dir = BASE_DIR / 'results'
     results_dir.mkdir(exist_ok=True)
     parser_mode = cli_args.mode
@@ -22,6 +23,7 @@ def file_output(results, cli_args):
 
 
 def control_output(results, cli_args):
+    """Определение способо вывода."""
     output = cli_args.output
     if output == 'pretty':
         pretty_output(results)
@@ -32,11 +34,13 @@ def control_output(results, cli_args):
 
 
 def default_output(results):
+    """Вывод в терминал."""
     for row in results:
         print(*row)
 
 
 def pretty_output(results):
+    """Вывод табличного вида в терминал."""
     table = PrettyTable()
     table.field_names = results[0]
     table.align = 'l'
