@@ -1,6 +1,5 @@
 import logging
 import re
-from typing import NoReturn, Optional
 from urllib.parse import urljoin
 
 import requests_cache
@@ -13,7 +12,7 @@ from outputs import control_output
 from utils import find_tag, get_response
 
 
-def whats_new(session) -> Optional[list[tuple]]:
+def whats_new(session):
     """
     Собирает ссылки на статьи о нововведениях в Python, переходит по ним
      и забирать информацию об авторах и редакторах статей.
@@ -48,7 +47,7 @@ def whats_new(session) -> Optional[list[tuple]]:
     return result
 
 
-def latest_versions(session) -> Optional[list[tuple]]:
+def latest_versions(session):
     """Собирает информацию о статусах версий Python."""
     print(type(session))
     response = get_response(session, MAIN_DOC_URL)
@@ -77,7 +76,7 @@ def latest_versions(session) -> Optional[list[tuple]]:
     return result
 
 
-def download(session) -> Optional[NoReturn]:
+def download(session):
     """Скачивает архив с актуальной документацией."""
     downloads_url = urljoin(MAIN_DOC_URL, 'download.html')
     response = get_response(session, downloads_url)
@@ -101,7 +100,7 @@ def download(session) -> Optional[NoReturn]:
     logging.info(f'Архив был загружен и сохранён: {archive_path}')
 
 
-def pep(session) -> Optional[list[tuple]]:
+def pep(session):
     """Парсит документы PEP."""
     response = get_response(session, PEP_URL)
     if response is None:
@@ -161,7 +160,7 @@ MODE_TO_FUNCTION = {
 }
 
 
-def main() -> NoReturn:
+def main():
     """Главная функция - точка входа."""
     configure_logging()
     logging.info('Парсер запущен!')
